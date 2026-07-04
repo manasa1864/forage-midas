@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaProducer {
     private final String topic;
-    private final KafkaTemplate<String, Transaction> kafkaTemplate;
+    private final KafkaTemplate<Object, Object> kafkaTemplate;
 
-    public KafkaProducer(@Value("${general.kafka-topic}") String topic, KafkaTemplate<String, Transaction> kafkaTemplate) {
+    public KafkaProducer(@Value("${general.kafka-topic}") String topic, KafkaTemplate<Object, Object> kafkaTemplate) {
         this.topic = topic;
         this.kafkaTemplate = kafkaTemplate;
     }
