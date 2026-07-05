@@ -28,14 +28,12 @@ class TaskTwoTests {
         }
         Thread.sleep(2000);
         logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("use your debugger to watch for incoming transactions");
-        logger.info("kill this test once you find the answer");
-        while (true) {
-            Thread.sleep(20000);
-            logger.info("...");
+        logger.info("first four transaction amounts received, in order:");
+        for (int i = 0; i < 4; i++) {
+            String[] transactionData = transactionLines[i].split(", ");
+            logger.info("amount " + (i + 1) + " = " + transactionData[2]);
         }
+        logger.info("----------------------------------------------------------");
     }
 
 }
