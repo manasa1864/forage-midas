@@ -1,8 +1,10 @@
 package com.jpmc.midascore;
 
 import com.jpmc.midascore.component.DatabaseConduit;
+import com.jpmc.midascore.component.IncentiveClient;
 import com.jpmc.midascore.entity.TransactionRecord;
 import com.jpmc.midascore.entity.UserRecord;
+import com.jpmc.midascore.foundation.Incentive;
 import com.jpmc.midascore.foundation.Transaction;
 import com.jpmc.midascore.repository.UserRepository;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,12 +15,15 @@ public class KafkaTransactionListener {
 
     private final UserRepository userRepository;
     private final DatabaseConduit databaseConduit;
+    private final IncentiveClient incentiveClient;
 
     public KafkaTransactionListener(UserRepository userRepository,
-                                    DatabaseConduit databaseConduit) {
+                                    DatabaseConduit databaseConduit,
+                                    IncentiveClient incentiveClient) {
 
         this.userRepository = userRepository;
         this.databaseConduit = databaseConduit;
+        this.incentiveClient = incentiveClient;
     }
 
     @KafkaListener(
@@ -41,8 +46,10 @@ public class KafkaTransactionListener {
             return;
         }
 
+        Incentive incentive = incentiveClient.query(transaction);
+
         sender.setBalance(sender.getBalance() - transaction.getAmount());
-        recipient.setBalance(recipient.getBalance() + transaction.getAmount());
+        recipient.setBalance(recipient.getBalance() + transaction.getAmount() + incentive.getAmount());
 
         databaseConduit.save(sender);
         databaseConduit.save(recipient);
@@ -51,7 +58,8 @@ public class KafkaTransactionListener {
                 new TransactionRecord(
                         sender,
                         recipient,
-                        transaction.getAmount());
+                        transaction.getAmount(),
+                        incentive.getAmount());
 
         databaseConduit.saveTransaction(record);
     }
